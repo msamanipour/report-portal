@@ -80,6 +80,7 @@
     @foreach($times as $key => $time)
         @php
             $checkTime = \Carbon\Carbon::now()->format('H:i') > $time->time;
+            $checkTime = false;
         @endphp
         <div class="row mb-5">
             <div class="col-lg-2">
@@ -89,15 +90,19 @@
                 @php
                     $val = (isset($result[$user->id][$time->id]) ? $result[$user->id][$time->id] : false);
                 @endphp
-                <div class="col-lg-2 text-center">
+                <div class="col-lg-2 text-center position-relative">
                     @if(!empty($time->time))
-                        <input type="text"
-                               class="form-control rounded-5 inset-shadow {{ ($checkTime && empty($val['body'])) ? 'bg-soft-danger is-invalid' : ((!empty($val['body'])) ? 'is-valid' : '') }} "
-                               {{ ($checkTime || \Carbon\Carbon::now()->format('H:i') < '09:00') ? 'disabled' : '' }} value="{{ ($val) ? $val['body'] : '' }}"
+                        <strong class="d-block d-lg-none">{{ $user->name }}</strong>
+                        <input type="text" style="padding-left: 1.9rem;"
+                               class="form-control rounded-5 mb-3 mb-lg-0 inset-shadow {{ ($checkTime && empty($val['body'])) ? 'bg-soft-danger is-invalid' : ((!empty($val['body'])) ? 'is-valid' : '') }} "
+                               {{ ($checkTime || \Carbon\Carbon::now()->format('H:i') < '09:00') ? 'disabled' : '' }} value="{{ (isset($val['body'])) ? $val['body'] : '' }}"
                                wire:change="changeReport" wire:model="result.{{ $user->id }}.{{ $time->id }}.body">
+                        <div class="form-check position-absolute" style="top: 7px;left: 20px;">
+                            <input class="form-check-input" type="checkbox" id="push" wire:change="changeReport" wire:model="result.{{ $user->id }}.{{ $time->id }}.push" >
+                        </div>
                     @else
                         <textarea
-                            class="form-control rounded-5 inset-shadow {{ ((!empty($val['body'])) ? 'is-valid' : '') }} "
+                            class="form-control rounded-5 mb-3 mb-lg-0 inset-shadow {{ ((!empty($val['body'])) ? 'is-valid' : '') }} "
                             value="{{ ($val) ? $val['body'] : '' }}"
                             wire:change="changeReport"
                             {{ (\Carbon\Carbon::now()->format('H:i') < '09:00') ? 'disabled' : '' }}
