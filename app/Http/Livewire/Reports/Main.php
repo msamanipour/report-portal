@@ -41,13 +41,15 @@ class Main extends Component
     {
         foreach ($this->result as $user => $item) {
             foreach ($item as $time => $body) {
-                Reports::updateOrCreate([
-                    'date' => Carbon::now()->format('Y-m-d'),
-                    'creator_user' => $user,
-                    'time' => $time,
-                ], [
-                    'body' => $body['body'],
-                ]);
+                if (\Carbon\Carbon::now()->format('H:i') < $time) {
+                    Reports::updateOrCreate([
+                        'date' => Carbon::now()->format('Y-m-d'),
+                        'creator_user' => $user,
+                        'time' => $time,
+                    ], [
+                        'body' => $body['body'],
+                    ]);
+                }
             }
         }
     }
