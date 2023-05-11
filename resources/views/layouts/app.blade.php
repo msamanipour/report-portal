@@ -20,12 +20,14 @@
             border-color: transparent !important;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     @livewireStyles
 </head>
 <body>
 @include('layouts.includes.header')
 {{ $slot }}
 <script src="{{ asset('js/bootstrap.bundle.min.js') }}" type="text/javascript"></script>
+@stack('scripts')
 @livewireScripts
 </body>
 </html>

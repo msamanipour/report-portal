@@ -10,7 +10,7 @@ use Livewire\Component;
 
 class Main extends Component
 {
-    public $users, $times, $reports, $result, $report;
+    public $users, $times, $reports, $result, $chart, $report;
 
     public function mount()
     {
@@ -32,8 +32,18 @@ class Main extends Component
         }
     }
 
+    public function renderChart()
+    {
+        $this->chart = [];
+        foreach (Reports::whereBetween('created_at', [Carbon::now()->format('Y-m-d 00:00:00'), Carbon::now()->format('Y-m-d 23:59:59')])
+                     ->get()->groupBy('creator_user')->toArray() as $key => $item) {
+            $this->chart[$key] = count($item) * 100 / count($this->times);
+        }
+    }
+
     public function render()
     {
+        $this->renderChart();
         return view('pages.reports.main');
     }
 
@@ -42,16 +52,24 @@ class Main extends Component
         foreach ($this->result as $user => $item) {
             foreach ($item as $time => $body) {
                 if (\Carbon\Carbon::now()->format('H:i') < $time) {
-                    Reports::updateOrCreate([
-                        'date' => Carbon::now()->format('Y-m-d'),
-                        'creator_user' => $user,
-                        'time' => $time,
-                    ], [
-                        'body' => $body['body'],
-                    ]);
+                    if (empty($body['body'])) {
+                        $report = Reports::where('date', Carbon::now()->format('Y-m-d'))->where('creator_user', $user)->where('time', $time)->first();
+                        if ($report)
+                            $report->delete();
+                    } else {
+                        Reports::updateOrCreate([
+                            'date' => Carbon::now()->format('Y-m-d'),
+                            'creator_user' => $user,
+                            'time' => $time,
+                        ], [
+                            'body' => $body['body'],
+                        ]);
+                    }
                 }
             }
         }
+        $this->renderChart();
+        $this->dispatchBrowserEvent('contentChanged', ['newName' => $this->chart]);
     }
 
 //    public function prevTime($id)
