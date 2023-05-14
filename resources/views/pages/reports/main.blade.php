@@ -79,7 +79,7 @@
     </div>
     @foreach($times as $key => $time)
         @php
-            $checkTime = \Carbon\Carbon::now()->format('H:i') > $time->time;
+            $checkTime = \Carbon\Carbon::now()->format('H:i') > \Carbon\Carbon::parse($time->time)->addMinutes(10)->format('H:i');
         @endphp
         <div class="row mb-5">
             <div class="col-lg-2">

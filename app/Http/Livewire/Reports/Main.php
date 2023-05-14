@@ -52,8 +52,8 @@ class Main extends Component
     {
         foreach ($this->result as $user => $item) {
             foreach ($item as $time => $body) {
-//                if (Carbon::now()->format('H:i') < $time) {
-                    if (!isset($body['body']) && !$body['push']) {
+                if (Carbon::now()->addMinutes(10)->format('H:i') < $time) {
+                    if (empty($body['body']) && !$body['push']) {
                         $report = Reports::where('date', Carbon::now()->format('Y-m-d'))->where('creator_user', $user)->where('time', $time)->first();
                         if ($report)
                             $report->delete();
@@ -63,11 +63,11 @@ class Main extends Component
                             'creator_user' => $user,
                             'time' => $time,
                         ], [
-                            'body' => isset($body['body']) ? $body['body'] : '',
-                            'push' => isset($body['push']) ? (int)$body['push'] : 0,
+                            'body' => $body['body'] ?? '',
+                            'push' => ($body['push']) ? 1 : 0,
                         ]);
                     }
-//                }
+                }
             }
         }
         $this->renderChart();
